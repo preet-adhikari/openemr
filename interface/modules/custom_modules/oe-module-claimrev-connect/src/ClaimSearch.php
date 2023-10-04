@@ -21,7 +21,7 @@ class ClaimSearch
     {
         $token = ClaimRevApi::getAccessToken();
         $data = ClaimRevApi::searchClaims($search, $token);
-
+        
         return $data;
     }
 }
