@@ -62,7 +62,8 @@ class UuidRegistry
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
-        'users' => ['table_name' => 'users']
+        'users' => ['table_name' => 'users'],
+        'device_request' => ['table_name' => 'device_request']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;

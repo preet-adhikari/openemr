@@ -68,8 +68,6 @@ services:
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
     - mysql
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
   phpmyadmin:
     restart: always
     image: phpmyadmin

@@ -27,3 +27,5 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 coverage/js-unit
+/interface/login/phpinfo.php
+

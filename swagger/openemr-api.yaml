@@ -4726,7 +4726,7 @@ paths:
                 "401":
                     $ref: "#/components/responses/unauthorized"
             security:
-                - openemr_auth: []            
+                - openemr_auth: []
     /fhir/DiagnosticReport:
         get:
             tags:
@@ -9045,6 +9045,7 @@ components:
                         user/Condition.read: "Read all condition resources the user has access to (api:fhir)"
                         user/Coverage.read: "Read all coverage resources the user has access to (api:fhir)"
                         user/Device.read: "Read all device resources the user has access to (api:fhir)"
+                        user/DeviceRequest.read: "Read all device request resources the user has access to (api:fhir)"
                         user/DiagnosticReport.read: "Read all diagnostic report resources the user has access to (api:fhir)"
                         user/DocumentReference.read: "Read all document reference resources the user has access to (api:fhir)"
                         user/DocumentReference.$docref: "Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)"
