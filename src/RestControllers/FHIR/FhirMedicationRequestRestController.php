@@ -50,6 +50,7 @@ class FhirMedicationRequestRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirMedicationRequestService->getAll($searchParams, $puuidBind);
+        // var_dump($processingResult->getData());
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

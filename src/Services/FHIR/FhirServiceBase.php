@@ -209,7 +209,6 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
         try {
             $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
-
             (new SystemLogger())->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
             // gives a ton of information but this can be helpful in debugging this stuff.
 //            array_walk($oeSearchParameters, function ($v) {
@@ -223,7 +222,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
             } else {
                 $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
             }
-
+            // var_dump($this->searchForOpenEMRRecords($oeSearchParameters));
             $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
             $fhirSearchResult->setValidationMessages($oeSearchResult->getValidationMessages());
 
