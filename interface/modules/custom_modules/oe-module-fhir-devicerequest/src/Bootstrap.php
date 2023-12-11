@@ -31,8 +31,10 @@ use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Modules\FHIRDeviceRequest\FhirDeviceRequestService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -201,6 +203,39 @@ class Bootstrap
         }
     }
 
+    // /* Adding a service container function to bypass the EHR launch  */
+
+    // private function setupContainer(): Container
+    // {
+    //     // the container cache will check the service definitions, detect file changes and update the cache if there are
+    //     // new definitions as needed.
+    //     $containerConfigCache = new ConfigCache(self::CONTAINER_CACHE_FILE, self::DEBUG);
+    //     if (!$containerConfigCache->isFresh()) {
+    //         $container = new ContainerBuilder();
+    //         $this->addSyntheticServicesToContainer($container);
+    //         $this->addServicesToContainer($container);
+    //         $container->compile();
+    //         $dumper = new PhpDumper($container);
+    //         $containerConfigCache->write(
+    //             $dumper->dump(['class' => 'DacAssessmentCachedContainer', 'namespace' => 'OpenEMR\\Modules\\DiscoverAndChange\\Assessments']),
+    //             $container->getResources()
+    //         );
+    //     }
+    //     require_once self::CONTAINER_CACHE_FILE;
+    //     $container = new DacAssessmentCachedContainer();
+    //     // inject our service values that come from outside our module.
+    //     $this->injectSyntheticServicesIntoContainer($container);
+    //      return $container;
+    // }
+
+    // public function getServiceContainer()
+    // {
+    //     if (empty($this->serviceContainer)) {
+    //         $this->serviceContainer = $this->setupContainer();
+    //     }
+    //     return $this->serviceContainer;
+    // }
+
     public function addCustomModuleMenuItem(MenuEvent $event)
     {
         $menu = $event->getMenu();
@@ -212,7 +247,19 @@ class Bootstrap
         $menuItem->label = xlt("FHIR DeviceRequest");
         // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
         // doesn't break any modules.
-        $menuItem->url = "/interface/modules/custom_modules/oe-module-fhir-devicerequest/public/sample-index.php";
+            /* 
+               Adding a comment here because trying to bypass the ehr-launch pages of authentication 
+            */
+            // $smartAppService = $this->getServiceContainer()->get(SmartAppClientService::class);
+            
+            
+            
+            $menuItem->url = "/interface/modules/custom_modules/oe-module-fhir-devicerequest/public/sample-index.php";
+            /* 
+             If it doesn't work please uncomment the above line
+             */
+
+        
         $menuItem->children = [];
 
         /**
@@ -274,6 +321,7 @@ class Bootstrap
          */
         $event->addToFHIRRouteMap('GET /fhir/DeviceRequest', [$apiController, 'listResources']);
         $event->addToFHIRRouteMap('GET /fhir/DeviceRequest/:fhirId', [$apiController, 'getOneResource']);
+        $event->addToFHIRRouteMap('POST /fhir/DeviceRequest', [$apiController, 'storeResource']);
 
         /**
          * Events must ALWAYS be returned

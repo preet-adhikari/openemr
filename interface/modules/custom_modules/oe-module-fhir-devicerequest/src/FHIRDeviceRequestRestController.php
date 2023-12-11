@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FHIRDeviceRequest;
 
+use HttpRequest;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRDeviceRequest;
 use OpenEMR\Modules\FHIRDeviceRequest\FhirDeviceRequestService;
 use RestConfig;
+use OpenEMR\Services\FHIR\FhirValidationService;
+
 
 class FHIRDeviceRequestRestController
 {
@@ -34,12 +37,54 @@ class FHIRDeviceRequestRestController
      * @var FhirResourcesService
      */
     private $fhirService;
+        
+    /**
+     * @var FhirValidationService
+     */
+    private $fhirValidate;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirDeviceRequestService = new FhirDeviceRequestService();
+        $this->fhirValidate = new FhirValidationService();
     }
+
+        
+    /**
+     * storeResource
+     * API function to handle the storage of the DeviceRequest resource
+     *
+     * @param  mixed $request
+     * @return void
+     */
+    public function storeResource(HttpRestRequest $request)
+    {
+        // Checking the authorization
+        RestConfig::authorization_check("patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $return = $this->post($data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    }
+    
+    /**
+     * Handle the validation and data storage of the DeviceRequest resource
+     *
+     * @param  mixed $fhirJson
+     * @return void
+     */
+    public function post($fhirJson)
+    {
+        $fhirValidate = $this->fhirValidate->validate($fhirJson);
+        if (!empty($fhirValidate)) {
+            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
+        }
+
+        //Create seralizer first
+
+    }
+
 
     /**
      * Handles the response to the API request GET /fhir/CustomSkeletonResource and returns the FHIRBundle resource
@@ -51,11 +96,9 @@ class FHIRDeviceRequestRestController
     public function listResources(HttpRestRequest $request) 
     {
         if ($request->isPatientRequest()) {
-            // return "hello";
             // only allow access to data of binded patient
             $result = $this->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            // return "hello";
             /**
              * If you need to check the API against any kind of ACL the RestConfig object will do an authorization check
              * and handle the API result back to the HTTP client

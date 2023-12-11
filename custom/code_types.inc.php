@@ -368,7 +368,7 @@ function collect_codetypes($category, $return_format = "array")
     global $code_types;
 
     $return = array();
-
+    // var_dump($code_types);
     foreach ($code_types as $ct_key => $ct_arr) {
         if (!$ct_arr['active']) {
             continue;

@@ -30,6 +30,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 
@@ -43,14 +44,15 @@ class FhirDeviceRequestService extends FhirServiceBase implements IPatientCompar
    use FhirServiceBaseEmptyTrait;
 
    // Statuses for DeviceRequest Resource 
-//    const DEVICE_REQUEST_STATUS_DRAFT = "draft";
-//    const DEVICE_REQUEST_STATUS_ACTIVE = "active";
-//    const DEVICE_REQUEST_STATUS_ON_HOLD = "on-hold";
-//    const DEVICE_REQUEST_STATUS_REVOKED = "revoked";
-//    const DEVICE_REQUEST_STATUS_COMPLETED = "completed";
-//    const DEVICE_REQUEST_STATUS_ENTERED_IN_ERROR = "entered-in-error";
-//    const DEVICE_REQUEST_STATUS_UNKNOWN = "unknown";
+   const DEVICE_REQUEST_STATUS_DRAFT = "draft";
+   const DEVICE_REQUEST_STATUS_ACTIVE = "active";
+   const DEVICE_REQUEST_STATUS_ON_HOLD = "on-hold";
+   const DEVICE_REQUEST_STATUS_REVOKED = "revoked";
+   const DEVICE_REQUEST_STATUS_COMPLETED = "completed";
+   const DEVICE_REQUEST_STATUS_ENTERED_IN_ERROR = "entered-in-error";
+   const DEVICE_REQUEST_STATUS_UNKNOWN = "unknown";
 
+//    TODO : Integrate it according to the PAO DeviceRequest Profile
     const DEVICE_REQUEST_INTENT_PLAN = "plan";
     const DEVICE_REQUEST_INTENT_ORDER = "order";
     
@@ -104,11 +106,15 @@ class FhirDeviceRequestService extends FhirServiceBase implements IPatientCompar
         $deviceRequestResource->setId($id);
 
         // Set status for the DeviceRequest
-        if(isset($dataRecord['status']))
+        $validStatii = [self::DEVICE_REQUEST_STATUS_ACTIVE, self::DEVICE_REQUEST_STATUS_DRAFT, self::DEVICE_REQUEST_STATUS_COMPLETED, self::DEVICE_REQUEST_STATUS_ENTERED_IN_ERROR, self::DEVICE_REQUEST_STATUS_ON_HOLD, self::DEVICE_REQUEST_STATUS_REVOKED];
+        if(!empty($dataRecord['status'])
+            && array_search($dataRecord['status'], $validStatii) !== false)
         {
             $deviceRequestResource->setStatus($dataRecord['status']);
-        }
-
+        } else {
+            $deviceRequestResource->setStatus(self::DEVICE_REQUEST_STATUS_UNKNOWN);
+        }    
+        
         //Required. Set the required intent for the DeviceRequest resource.
         if (isset($dataRecord['intent']))
         {
@@ -139,7 +145,21 @@ class FhirDeviceRequestService extends FhirServiceBase implements IPatientCompar
             $deviceRequestResource->setSubject(UtilsService::createRelativeReference($subjectType, $subjectId));
         }
 
-        
+        //Set codeReference for Device
+        if(!empty($dataRecord['device_uuid']))
+        {
+            $deviceRequestResource->setCodeReference(UtilsService::createRelativeReference('Device' , $dataRecord['device_uuid']));
+        } else {
+            //Create codeCodeableConcept
+            $deviceRequestResource->setCodeCodeableConcept(UtilsService::createCodeableConcept([
+                
+                   $dataRecord['device_code'] =>
+                   [ 'system' => FhirCodeSystemConstants::SNOMED_CT,
+                   'description' => $dataRecord['display_name']
+                   ]
+            ]
+            ));
+        }
 
         // Set the priority for the DeviceRequest resource.
         if (isset($dataRecord['priority'])){

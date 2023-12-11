@@ -11215,7 +11215,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPatientRestController())->post($data);
         RestConfig::apiLog($return, $data);
-        return $return;
+        return $return; 
     },
 
     /**

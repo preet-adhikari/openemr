@@ -1,4 +1,12 @@
 -- This table definition is loaded and then executed when the OpenEMR interface's install button is clicked.
+
+CREATE TABLE IF NOT EXISTS `device_code` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    `code_system` VARCHAR(255) COMMENT 'System information',
+    `device_code` VARCHAR(255) COMMENT 'Device Code',
+    `display_name` VARCHAR(255) COMMENT 'Device Name'
+);
+
 CREATE TABLE IF NOT EXISTS `device_request` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     `uuid` BINARY(16),
@@ -7,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `device_request` (
     `date` DATETIME DEFAULT NULL, 
     `event_date` DATETIME DEFAULT NULL, 
     `pruuid` BINARY(16) DEFAULT NULL, 
+    `device_code_id` BIGINT,
     `location_uuid` BINARY(16) DEFAULT NULL, 
     `device_uuid` BINARY(16) DEFAULT NULL,
     `organization_uuid` BINARY(16) DEFAULT NULL,
@@ -22,3 +31,7 @@ CREATE TABLE IF NOT EXISTS `device_request` (
     UNIQUE KEY `pruuid` (`pruuid`),
     KEY `pid_encounter` (`pid`,`encounter`)
 );
+
+ALTER TABLE `device_request` ADD CONSTRAINT `fk_device_code`
+FOREIGN KEY (`device_code_id`)
+REFERENCES `device_code` (`id`);

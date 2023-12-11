@@ -164,7 +164,7 @@ class UtilsService
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
-            return array_filter($extensions, function ($extension) use ($url) {
+            return array_filter($extensions, function ($extension) use ($url) { 
                 return $extension->getUrl() == $url;
             });
         }

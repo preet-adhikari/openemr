@@ -99,7 +99,10 @@ class FHIRDeviceRequestDataStore extends BaseService
         //         device_request.relevant_history_uuid,
         //         device_request.last_updated";
 
-        $sql = "SELECT * FROM device_request";
+        $sql = "SELECT * FROM device_request
+            LEFT JOIN device_code ON device_request.device_code_id = device_code.id 
+        ";
+
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
